@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Chrome Extension](https://img.shields.io/badge/Platform-Chrome-blue.svg)](https://chrome.google.com/webstore)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/yourusername/BilibiliKeeper/pulls)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/xxcdd/BilibiliKeeper/pulls)
 
 > 🚀 **使用AI智能分析，打造你的个性化B站信息流！** 根据你设置的兴趣主题自动过滤B站视频内容，让你的时间更有价值。
 
@@ -25,8 +25,7 @@
 1. 下载[最新版本的ZIP文件](https://github.com/xxcdd/BilibiliKeeper/releases)。
 2. 打开Chrome浏览器，访问 `chrome://extensions/`。
 3. 开启右上角的"开发者模式"。
-4. 点击"加载已解压的扩展程序"，选择解压后的扩展文件夹。
-5. 或者，直接将下载的ZIP文件拖放到扩展页面中进行安装。
+4. 直接将下载的ZIP文件拖放到扩展页面中进行安装，或者点击"加载已解压的扩展程序"，选择解压后的扩展文件夹。
 
 ### 使用指南
 
@@ -118,6 +117,6 @@ BilibiliKeeper/
 
 <p align="center">
   用❤️制作 | 
-  <a href="https://github.com/yourusername/BilibiliKeeper/issues">报告问题</a> | 
-  <a href="https://github.com/yourusername/BilibiliKeeper/blob/main/CONTRIBUTING.md">参与贡献</a>
+  <a href="https://github.com/xxcdd/BilibiliKeeper/issues">报告问题</a> | 
+  <a href="https://github.com/xxcdd/BilibiliKeeper/blob/main/CONTRIBUTING.md">参与贡献</a>
 </p> 
