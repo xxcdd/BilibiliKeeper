@@ -18,6 +18,8 @@ let pendingVideos = []; // 待处理视频队列
 let batchSize = DEFAULT_BATCH_SIZE; // 一次处理的视频数量
 let processingBatch = false; // 是否正在处理批次
 let batchTimer = null; // 批处理定时器
+let isPageStabilizing = false; // 页面是否在稳定中
+const PAGE_STABILIZATION_TIME = 4000; // 页面稳定等待时间(ms)，增加时间确保页面完全加载
 
 // 获取API设置
 async function getAPISettings() {
@@ -266,7 +268,7 @@ async function processVideoCard(card) {
 
 // 处理一批视频
 async function processBatch() {
-  if (pendingVideos.length === 0 || processingBatch) return;
+  if (pendingVideos.length === 0 || processingBatch || isPageStabilizing) return;
   
   processingBatch = true;
   
@@ -315,11 +317,16 @@ async function processBatch() {
         }
       }
     }
+    
+    // 如果所有视频都已处理完毕（队列为空），则自动点击"换一换"按钮
+    if (pendingVideos.length === 0) {
+      await clickRollButton();
+    }
   } finally {
     processingBatch = false;
     
     // 如果队列中还有视频，继续处理下一批
-    if (pendingVideos.length > 0) {
+    if (pendingVideos.length > 0 && !isPageStabilizing) {
       setTimeout(() => processBatch(), 1000); // 稍微延迟后处理下一批
     }
   }
@@ -379,6 +386,159 @@ function handleFallbackNoInterest(card, title) {
       showNotification(`未找到任何不感兴趣按钮，无法处理: "${title}"`, 'error');
     }
   }, 800);
+}
+
+// 自动点击"换一换"按钮并等待页面稳定
+async function clickRollButton() {
+  // 多种方式查找换一换按钮
+  
+  // 1. 使用精确的选择器匹配
+  let rollButton = document.querySelector('button.primary-btn.roll-btn[data-v-3581b8d4]');
+  
+  // 2. 如果精确匹配没找到，使用通用类选择器
+  if (!rollButton) {
+    rollButton = document.querySelector('button.primary-btn.roll-btn');
+  }
+  
+  // 3. 如果仍然没找到，通过按钮文本内容查找
+  if (!rollButton) {
+    const allButtons = document.querySelectorAll('button');
+    for (const btn of allButtons) {
+      if (btn.textContent.includes('换一换')) {
+        rollButton = btn;
+        break;
+      }
+    }
+  }
+  
+  // 4. 最后尝试查找包含SVG和"换一换"文本的元素
+  if (!rollButton) {
+    const allElements = document.querySelectorAll('*');
+    for (const el of allElements) {
+      if (el.querySelector('svg') && el.textContent.includes('换一换')) {
+        rollButton = el;
+        break;
+      }
+    }
+  }
+  
+  if (rollButton) {
+    showNotification(`找到"换一换"按钮，准备点击`, 'info');
+    
+    try {
+      // 确保按钮可见并可点击
+      ensureElementVisible(rollButton);
+      
+      // 高亮按钮以便调试
+      const originalBackground = rollButton.style.backgroundColor;
+      const originalBorder = rollButton.style.border;
+      rollButton.style.backgroundColor = 'yellow';
+      rollButton.style.border = '2px solid blue';
+      
+      // 记录当前页面状态，用于判断页面是否刷新
+      const currentVideos = document.querySelectorAll('.bili-video-card');
+      const currentVideoCount = currentVideos.length;
+      const firstVideoTitle = currentVideos.length > 0 ? 
+        (currentVideos[0].querySelector('.bili-video-card__info--tit')?.textContent || '') : '';
+      
+      // 设置页面稳定标志
+      isPageStabilizing = true;
+      
+      // 尝试标准点击
+      try {
+        rollButton.click();
+        showNotification('成功点击"换一换"按钮，页面刷新中', 'success');
+      } catch (clickError) {
+        showNotification(`标准点击失败，尝试事件分发: ${clickError.message}`, 'info');
+        
+        // 如果标准点击失败，尝试使用事件分发
+        const rect = rollButton.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        
+        const eventOptions = {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+          clientX: centerX,
+          clientY: centerY,
+          screenX: centerX,
+          screenY: centerY
+        };
+        
+        // 分发点击事件序列
+        ['mousedown', 'mouseup', 'click'].forEach(eventType => {
+          rollButton.dispatchEvent(new MouseEvent(eventType, eventOptions));
+        });
+        
+        showNotification('通过事件分发完成点击', 'success');
+      }
+      
+      // 恢复按钮原样式
+      setTimeout(() => {
+        try {
+          rollButton.style.backgroundColor = originalBackground;
+          rollButton.style.border = originalBorder;
+        } catch (e) {
+          // 如果按钮已经从DOM中删除，忽略错误
+        }
+      }, 500);
+      
+      // 等待页面稳定 - 使用智能等待
+      showNotification(`等待页面稳定中...`, 'info');
+      
+      // 设置最大等待时间
+      const maxWaitTime = PAGE_STABILIZATION_TIME;
+      const startTime = Date.now();
+      let isStable = false;
+      
+      // 等待页面稳定或超时
+      while (!isStable && (Date.now() - startTime < maxWaitTime)) {
+        // 等待一小段时间
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 检查页面是否已经刷新
+        const newVideos = document.querySelectorAll('.bili-video-card');
+        const newVideoCount = newVideos.length;
+        const newFirstVideoTitle = newVideos.length > 0 ? 
+          (newVideos[0].querySelector('.bili-video-card__info--tit')?.textContent || '') : '';
+        
+        // 如果视频数量变化或第一个视频标题变化，说明页面已经刷新
+        if (newVideoCount !== currentVideoCount || newFirstVideoTitle !== firstVideoTitle) {
+          isStable = true;
+          showNotification(`检测到页面内容已更新`, 'success');
+        }
+      }
+      
+      // 额外等待一段时间，确保页面完全加载
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // 恢复处理
+      isPageStabilizing = false;
+      showNotification('页面已稳定，继续处理', 'info');
+      
+      // 刷新后重新开始处理新加载的视频
+      const videoCards = document.querySelectorAll('.bili-video-card.is-rcmd.enable-no-interest');
+      
+      if (videoCards.length > 0) {
+        showNotification(`找到 ${videoCards.length} 个新视频卡片待处理`, 'info');
+        // 清空已处理视频集合，确保新加载的视频能被处理
+        processedVideos.clear();
+        videoCards.forEach(processVideoCard);
+      } else {
+        showNotification('未找到新的视频卡片，可能需要刷新页面', 'info');
+      }
+      
+      return true;
+    } catch (error) {
+      showNotification(`点击"换一换"按钮过程中发生错误: ${error.message}`, 'error');
+      isPageStabilizing = false;
+      return false;
+    }
+  } else {
+    showNotification('未找到"换一换"按钮', 'info');
+    return false;
+  }
 }
 
 // 初始化过滤器
