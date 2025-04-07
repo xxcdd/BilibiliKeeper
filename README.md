@@ -20,13 +20,9 @@
 
 ### 安装扩展
 
-#### 方法一：从Chrome网上应用店安装（推荐）
+#### 开发者模式安装
 
-访问 [Chrome网上应用店](https://chrome.google.com/webstore) 搜索 "BilibiliKeeper" 并点击安装。
-
-#### 方法二：开发者模式安装
-
-1. 下载[最新版本](https://github.com/yourusername/BilibiliKeeper/releases)或克隆此仓库
+1. 下载[最新版本](https://github.com/xxcdd/BilibiliKeeper/releases)或克隆此仓库
 2. 打开Chrome浏览器，访问 `chrome://extensions/`
 3. 开启右上角的"开发者模式"
 4. 点击"加载已解压的扩展程序"，选择本扩展的文件夹
@@ -71,6 +67,9 @@ npm install
 
 # 开发模式
 npm run dev
+
+# 清理构建目录
+npm run clean
 
 # 构建扩展
 npm run build
