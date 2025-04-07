@@ -1,0 +1,24 @@
+{
+  "name": "bilibilikeeper",
+  "version": "1.0.0",
+  "description": "这是一个Chrome浏览器扩展，可以根据你设置的兴趣主题自动过滤B站视频内容。它使用AI模型来分析视频内容，并自动点击不感兴趣按钮。",
+  "main": "src/background.js",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && mkdir -p dist && cp -r manifest.json images dist/ && mkdir -p dist/src && cp src/*.js src/*.html dist/src/",
+    "lint": "eslint --fix src/*.js",
+    "dev": "nodemon --watch src --watch manifest.json --watch images --ext js,html,json,png --exec npm run build",
+    "package": "npm run build && cd dist && zip -r ../bilibilikeeper.zip *"
+  },
+  "keywords": [
+    "chrome-extension",
+    "bilibili",
+    "content-filter"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "nodemon": "^3.0.3"
+  }
+}
