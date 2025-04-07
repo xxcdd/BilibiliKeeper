@@ -20,12 +20,13 @@
 
 ### 安装扩展
 
-#### 开发者模式安装
+#### 安装ZIP文件
 
-1. 下载[最新版本](https://github.com/xxcdd/BilibiliKeeper/releases)或克隆此仓库
-2. 打开Chrome浏览器，访问 `chrome://extensions/`
-3. 开启右上角的"开发者模式"
-4. 点击"加载已解压的扩展程序"，选择本扩展的文件夹
+1. 下载[最新版本的ZIP文件](https://github.com/xxcdd/BilibiliKeeper/releases)。
+2. 打开Chrome浏览器，访问 `chrome://extensions/`。
+3. 开启右上角的"开发者模式"。
+4. 点击"加载已解压的扩展程序"，选择解压后的扩展文件夹。
+5. 或者，直接将下载的ZIP文件拖放到扩展页面中进行安装。
 
 ### 使用指南
 
