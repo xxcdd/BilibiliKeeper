@@ -4,7 +4,7 @@ let API_KEY = ''; // 将从设置获取
 let API_URL = ''; // 将从设置获取
 
 // 批量处理配置
-const DEFAULT_BATCH_SIZE = 5; // 默认批处理大小
+const DEFAULT_BATCH_SIZE = 9; // 默认批处理大小
 const MIN_BATCH_SIZE = 2; // 最小批处理大小
 const MAX_BATCH_SIZE = 10; // 最大批处理大小
 const BATCH_TIMEOUT = 3000; // 批处理超时时间(ms)，即使不满批次也会处理
@@ -165,13 +165,13 @@ async function analyzeContentBatch(videoBatch, interests) {
     // 构建批量分析的提示
     let prompt = `请分析以下 ${videoBatch.length} 个视频标题是否与用户感兴趣的主题相关。\n\n`;
     prompt += `用户感兴趣的主题：${interests.join(', ')}\n\n`;
-    prompt += `视频列表：\n`;
+    prompt += '视频列表：\n';
     
     videoBatch.forEach((video, index) => {
       prompt += `${index + 1}. 标题：${video.title}\n`;
     });
     
-    prompt += `\n请针对每个视频，只回复视频编号和"相关"或"不相关"的判断结果，用分号分隔，不要有其他文字。例如："1:相关;2:不相关;3:相关"`;
+    prompt += '\n请针对每个视频，只回复视频编号和"相关"或"不相关"的判断结果，用分号分隔，不要有其他文字。例如："1:相关;2:不相关;3:相关"';
     
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -180,12 +180,12 @@ async function analyzeContentBatch(videoBatch, interests) {
         'Authorization': `Bearer ${API_KEY}`
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model: 'deepseek-chat',
         messages: [{
-          role: "system",
-          content: "你是一个内容分析助手，需要判断多个视频内容是否与用户感兴趣的主题相关。请按照要求格式简洁回复。"
+          role: 'system',
+          content: '你是一个内容分析助手，需要判断多个视频内容是否与用户感兴趣的主题相关。请按照要求格式简洁回复。'
         }, {
-          role: "user",
+          role: 'user',
           content: prompt
         }],
         temperature: 0.3
@@ -196,7 +196,7 @@ async function analyzeContentBatch(videoBatch, interests) {
     console.log('批量API响应:', data);
     
     const resultText = data.choices[0].message.content.trim();
-    showNotification(`批量分析完成`, 'success');
+    showNotification('批量分析完成', 'success');
     
     // 解析结果
     const resultMap = new Map();
@@ -207,7 +207,7 @@ async function analyzeContentBatch(videoBatch, interests) {
       // 提取数字
       const index = parseInt(indexStr.trim().replace(/\D/g, '')) - 1;
       if (index >= 0 && index < videoBatch.length) {
-        resultMap.set(index, relevance.trim() === "相关");
+        resultMap.set(index, relevance.trim() === '相关');
       }
     });
     
@@ -347,7 +347,7 @@ function handleFallbackNoInterest(card, title) {
     if (noInterestButton) {
       // 确保按钮可见
       if (ensureElementVisible(noInterestButton)) {
-        showNotification(`找到不感兴趣按钮，已设为可见状态`, 'info');
+        showNotification('找到不感兴趣按钮，已设为可见状态', 'info');
         
         // 给按钮添加明显的样式以便识别
         noInterestButton.style.border = '2px solid red';
@@ -360,7 +360,7 @@ function handleFallbackNoInterest(card, title) {
             noInterestButton.click();
             showNotification(`成功点击不感兴趣按钮: "${title}"`, 'success');
           } catch (error) {
-            showNotification(`标准点击失败，尝试模拟点击事件`, 'info');
+            showNotification('标准点击失败，尝试模拟点击事件', 'info');
             
             // 如果标准点击失败，尝试使用事件分发
             noInterestButton.dispatchEvent(new MouseEvent('click', {
@@ -736,7 +736,7 @@ function findAndTriggerNoInterestPanel(card, title) {
       }
       
       // 如果新方法失败，继续尝试其他方法
-      showNotification(`菜单点击方法未成功，尝试其他方法`, 'info');
+      showNotification('菜单点击方法未成功，尝试其他方法', 'info');
       
       // 步骤1：尝试直接通过Vue组件处理，根据提供的前端代码实现
       const vueResult = await injectVueComponentHandler(card, title);
@@ -746,12 +746,12 @@ function findAndTriggerNoInterestPanel(card, title) {
         return;
       }
       
-      showNotification(`Vue组件处理未成功，尝试常规DOM操作`, 'info');
+      showNotification('Vue组件处理未成功，尝试常规DOM操作', 'info');
       
       // 步骤2：尝试查找"更多"按钮并点击
       const moreButton = card.querySelector('.bili-video-card__info--more');
       if (moreButton) {
-        showNotification(`找到"更多"按钮，尝试点击`, 'info');
+        showNotification('找到"更多"按钮，尝试点击', 'info');
         
         // 确保按钮可见
         ensureElementVisible(moreButton);
@@ -769,7 +769,7 @@ function findAndTriggerNoInterestPanel(card, title) {
           const panelItems = document.querySelectorAll('.bili-video-card__info--no-interest-panel--item');
           
           if (panelItems.length > 0) {
-            showNotification(`找到不感兴趣面板项，尝试点击`, 'success');
+            showNotification('找到不感兴趣面板项，尝试点击', 'success');
             
             // 确保面板项可见
             const panelItem = panelItems[0];
@@ -782,14 +782,14 @@ function findAndTriggerNoInterestPanel(card, title) {
             try {
               // 点击面板项
               panelItem.click();
-              showNotification(`成功点击不感兴趣面板项`, 'success');
+              showNotification('成功点击不感兴趣面板项', 'success');
               resolve(true);
               return;
             } catch (e) {
               showNotification(`点击面板项失败: ${e.message}`, 'error');
             }
           } else {
-            showNotification(`未找到不感兴趣面板项`, 'error');
+            showNotification('未找到不感兴趣面板项', 'error');
           }
         } catch (e) {
           showNotification(`点击"更多"按钮失败: ${e.message}`, 'error');
@@ -797,13 +797,13 @@ function findAndTriggerNoInterestPanel(card, title) {
       }
       
       // 步骤3：尝试直接模拟不感兴趣节点的悬停和点击
-      showNotification(`尝试找到不感兴趣节点并直接操作`, 'info');
+      showNotification('尝试找到不感兴趣节点并直接操作', 'info');
       
       // 查找可能的不感兴趣节点
       const noInterestNode = card.querySelector('.bili-video-card__info--no-interest');
       
       if (noInterestNode) {
-        showNotification(`找到不感兴趣节点，尝试模拟悬停`, 'success');
+        showNotification('找到不感兴趣节点，尝试模拟悬停', 'success');
         
         // 确保节点可见
         ensureElementVisible(noInterestNode);
@@ -822,7 +822,7 @@ function findAndTriggerNoInterestPanel(card, title) {
         const panelItem = card.querySelector('.bili-video-card__info--no-interest-panel--item');
         
         if (panelItem) {
-          showNotification(`找到面板项，尝试点击`, 'success');
+          showNotification('找到面板项，尝试点击', 'success');
           
           // 确保面板项可见
           ensureElementVisible(panelItem);
@@ -830,7 +830,7 @@ function findAndTriggerNoInterestPanel(card, title) {
           try {
             // 点击面板项
             panelItem.click();
-            showNotification(`成功点击面板项`, 'success');
+            showNotification('成功点击面板项', 'success');
             resolve(true);
             return;
           } catch (e) {
@@ -840,7 +840,7 @@ function findAndTriggerNoInterestPanel(card, title) {
       }
       
       // 步骤4：最后手段 - 使用模拟悬停
-      showNotification(`常规方法都失败了，尝试模拟完整的鼠标悬停序列`, 'info');
+      showNotification('常规方法都失败了，尝试模拟完整的鼠标悬停序列', 'info');
       
       // 使用增强版悬停模拟
       const titleElement = card.querySelector('.bili-video-card__info--tit');
@@ -854,13 +854,13 @@ function findAndTriggerNoInterestPanel(card, title) {
         const finalPanelItem = card.querySelector('.bili-video-card__info--no-interest-panel--item');
         
         if (finalPanelItem) {
-          showNotification(`找到最终面板项，尝试点击`, 'success');
+          showNotification('找到最终面板项，尝试点击', 'success');
           
           ensureElementVisible(finalPanelItem);
           
           try {
             finalPanelItem.click();
-            showNotification(`成功点击最终面板项`, 'success');
+            showNotification('成功点击最终面板项', 'success');
             
             // 清理悬停状态
             if (hoverState && hoverState.cleanup) {
@@ -878,7 +878,7 @@ function findAndTriggerNoInterestPanel(card, title) {
             }
           }
         } else {
-          showNotification(`未找到最终面板项`, 'error');
+          showNotification('未找到最终面板项', 'error');
           
           // 清理悬停状态
           if (hoverState && hoverState.cleanup) {
@@ -888,17 +888,17 @@ function findAndTriggerNoInterestPanel(card, title) {
       }
       
       // 如果所有方法都失败，尝试直接标记卡片为已过滤
-      showNotification(`所有方法都失败，尝试直接标记卡片为已过滤`, 'info');
+      showNotification('所有方法都失败，尝试直接标记卡片为已过滤', 'info');
       
       const videoCard = card.closest('.bili-video-card');
       if (videoCard) {
         videoCard.style.opacity = '0.5';
         videoCard.style.pointerEvents = 'none';
         videoCard.dataset.filtered = 'true';
-        showNotification(`已标记卡片为已过滤`, 'success');
+        showNotification('已标记卡片为已过滤', 'success');
         resolve(true);
       } else {
-        showNotification(`无法标记卡片为已过滤`, 'error');
+        showNotification('无法标记卡片为已过滤', 'error');
         resolve(false);
       }
     } catch (error) {
@@ -911,7 +911,7 @@ function findAndTriggerNoInterestPanel(card, title) {
           videoCard.style.opacity = '0.5';
           videoCard.style.pointerEvents = 'none';
           videoCard.dataset.filtered = 'true';
-          showNotification(`发生错误后已标记卡片为已过滤`, 'success');
+          showNotification('发生错误后已标记卡片为已过滤', 'success');
           resolve(true);
         } else {
           resolve(false);
@@ -1531,12 +1531,12 @@ async function analyzeContent(title, interests) {
         'Authorization': `Bearer ${API_KEY}`
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model: 'deepseek-chat',
         messages: [{
-          role: "system",
-          content: "你是一个内容分析助手，需要判断视频内容是否与用户感兴趣的主题相关。"
+          role: 'system',
+          content: '你是一个内容分析助手，需要判断视频内容是否与用户感兴趣的主题相关。'
         }, {
-          role: "user",
+          role: 'user',
           content: `视频标题：${title}\n用户感兴趣的主题：${interests.join(', ')}\n\n请分析这个视频是否与用户感兴趣的主题相关。如果相关，返回"相关"；如果不相关，返回"不相关"。`
         }],
         temperature: 0.3
@@ -1545,7 +1545,7 @@ async function analyzeContent(title, interests) {
 
     const data = await response.json();
     console.log('单独API响应:', data);
-    const isRelevant = data.choices[0].message.content.trim() === "相关";
+    const isRelevant = data.choices[0].message.content.trim() === '相关';
     showNotification(`分析结果: "${title}" 与您的兴趣${isRelevant ? '相关' : '不相关'}`, isRelevant ? 'info' : 'success');
     return isRelevant;
   } catch (error) {
